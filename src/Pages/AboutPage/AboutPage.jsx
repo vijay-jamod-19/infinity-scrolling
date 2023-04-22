@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from "react";
 import styled from 'styled-components'
 import wood1 from '../../assets/images/wood1.jpg'
 import wood2 from '../../assets/images/wood2.jpg'
 
-const dataDammy = [
+const dataDummy = [
     {
         id:1,
         title:'Data Title',
@@ -93,29 +93,37 @@ const dataDammy = [
     
     }
 ]
-const HomePage = () => {
-    const [data, setData] = useState(dataDammy);
-    const [top, setTop] = useState(0);
+const AboutPage = () => {
+    const [data, setData] = useState(dataDummy);    
+    const listAdditionTimeout = useRef(null);
+    const containerRef = useRef(null);
+
+    // var scrollDistancePerSecond = 1; // Scroll 50px every second.
+    var scrollDistancePerAnimationFrame = Math.ceil(1);
+
+  const autoScroll = () => {
+    if (containerRef.current.scrollTop < containerRef.current.scrollHeight)
+        window.requestAnimationFrame(autoScroll.bind(null, containerRef.current));
+        containerRef.current.scrollTop += scrollDistancePerAnimationFrame;
+  }
 
     useEffect(()=>{
-        const listAdditionTimeout = setInterval(()=>{
-            setData((data)=>[...data, {
-                id:1,
-                title:'Data Title',
-                wight:'50 KG',
-                qty:5,
-                price:5000,            
-            }]);
-        },1000 * 1);
+      listAdditionTimeout.current = setInterval(() => {
+        setData((data) => [...data, {
+            id:1,
+            title:'Data Title',
+            wight:'50 KG',
+            qty:5,
+            price:5000,
         
-        const animationTimeout = setInterval(()=>{
-            setTop((top)=> top - 10);
-        },500);
-
-        return ()=>{
-            clearInterval(listAdditionTimeout);
-            clearInterval(animationTimeout);
-        }
+        }]);
+      }, 500);
+  
+      autoScroll();
+  
+      return () => {
+        clearInterval(listAdditionTimeout.current);
+      };
     },[])
 
     
@@ -132,10 +140,10 @@ const HomePage = () => {
                         <li className='headerLi'>Price</li>
                     </ul>
                 </HeaderContainer>   
-                <BodyContainer>
+                <BodyContainer ref={containerRef}>
                     {data.map((item,index)=>{
                         return (
-                            <UL top={index === 0 && top} key={index}>
+                            <UL key={index}>
                                 <li className='headerLi'>{index}</li>
                                 <li className='headerLi'>{item.title}</li>
                                 <li className='headerLi'>{item.wight}</li>
@@ -215,8 +223,8 @@ const UL = styled.ul`
     padding-top: 10px;
     padding-bottom: 10px;
 
-    margin-top: ${({ top }) => `${top}px`};
-    transition: margin-top 2.5s ease 0s;
+    /* margin-top: ${({ top }) => `${top}px`};
+    transition: margin-top 2.5s ease 0s; */
 
     /* animation: UL 20s linear infinite;
     @keyframes UL {
@@ -232,4 +240,4 @@ const UL = styled.ul`
     }
 `;
 
-export default HomePage
+export default AboutPage
